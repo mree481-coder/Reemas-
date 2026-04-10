@@ -1,0 +1,434 @@
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a1628;font-family:Arial,sans-serif;color:#fff;min-height:100vh}
+.dash{background:#0a1628;padding:14px;min-height:100vh}
+.header{background:linear-gradient(135deg,#0f2042,#142240);border:1px solid #1e3a5f;border-radius:10px;padding:14px 18px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
+.header h1{font-size:16px;font-weight:700;color:#fff;letter-spacing:.5px}
+.header span{font-size:11px;color:#8898aa}
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px}
+.kpi{background:#142240;border:1px solid #1e3a5f;border-radius:8px;padding:12px 14px;position:relative;overflow:hidden}
+.kpi::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;border-radius:3px 0 0 3px}
+.kpi.blue::before{background:#4a9fd4}
+.kpi.gold::before{background:#c9a84c}
+.kpi.green::before{background:#2ecc71}
+.kpi.cyan::before{background:#00b4d8}
+.kpi-label{font-size:9px;color:#8898aa;text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px}
+.kpi-val{font-size:20px;font-weight:700;margin-bottom:3px}
+.kpi.blue .kpi-val{color:#4a9fd4}
+.kpi.gold .kpi-val{color:#c9a84c}
+.kpi.green .kpi-val{color:#2ecc71}
+.kpi.cyan .kpi-val{color:#00b4d8}
+.kpi-sub{font-size:9px;color:#8898aa}
+.kpi-sub .up{color:#2ecc71}
+.kpi-sub .down{color:#e74c3c}
+.main-grid{display:grid;grid-template-columns:1fr 1fr 220px;gap:10px;margin-bottom:10px}
+.mid-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px}
+.card{background:#142240;border:1px solid #1e3a5f;border-radius:8px;padding:12px}
+.card-title{font-size:10px;font-weight:700;color:#c9a84c;text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.card-title span{font-size:12px}
+.filters{display:flex;flex-direction:column;gap:8px}
+.filter-group label{font-size:9px;color:#8898aa;text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:4px}
+.filter-group select{width:100%;background:#0a1628;border:1px solid #1e3a5f;color:#fff;padding:5px 8px;border-radius:5px;font-size:10px;cursor:pointer}
+.filter-group select:focus{outline:none;border-color:#4a9fd4}
+canvas{display:block}
+.bar-row{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.bar-label{font-size:9px;color:#ccc;width:52px;text-align:right;flex-shrink:0}
+.bar-track{flex:1;background:#0a1628;border-radius:3px;height:10px;overflow:hidden}
+.bar-fill{height:100%;border-radius:3px;transition:width .6s}
+.bar-val{font-size:9px;color:#8898aa;width:52px;flex-shrink:0}
+.legend-row{display:flex;align-items:center;gap:5px;margin-bottom:4px;font-size:9px;color:#ccc}
+.legend-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.bottom-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.profit-bar-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.profit-label{font-size:9px;color:#ccc;width:48px;flex-shrink:0}
+.profit-track{flex:1;background:#0a1628;border-radius:3px;height:8px;overflow:hidden}
+.profit-fill{height:100%;border-radius:3px}
+.profit-val{font-size:9px;font-weight:700;color:#c9a84c;width:52px;text-align:right;flex-shrink:0}
+</style>
+<div class="dash">
+  <div class="header">
+    <div>
+      <h1>Saudi Retail Sales Performance Dashboard</h1>
+      <span>Sales Intelligence Report &nbsp;|&nbsp; Cities: Abha · Dammam · Hail · Jeddah · Jubail · Riyadh &nbsp;|&nbsp; 2004–2006</span>
+    </div>
+    <div style="font-size:11px;color:#c9a84c;font-weight:700">POWERED BY ANALYTICS</div>
+  </div>
+
+  <div class="kpi-row">
+    <div class="kpi gold">
+      <div class="kpi-label">Total Sales</div>
+      <div class="kpi-val" id="kpi-sales">SAR 10.08M</div>
+      <div class="kpi-sub"><span class="up">▲ +8.2%</span> vs previous period</div>
+    </div>
+    <div class="kpi cyan">
+      <div class="kpi-label">Total Orders</div>
+      <div class="kpi-val" id="kpi-orders">108</div>
+      <div class="kpi-sub"><span class="up">+8%</span> active transactions</div>
+    </div>
+    <div class="kpi green">
+      <div class="kpi-label">Profit Margin</div>
+      <div class="kpi-val" id="kpi-margin">37.5%</div>
+      <div class="kpi-sub"><span class="up">▲ +2.1%</span> gross profit</div>
+    </div>
+    <div class="kpi blue">
+      <div class="kpi-label">Total Profit</div>
+      <div class="kpi-val" id="kpi-profit">SAR 3.78M</div>
+      <div class="kpi-sub">6 cities · 5 reps · 4 products</div>
+    </div>
+  </div>
+
+  <div class="main-grid">
+    <div class="card">
+      <div class="card-title"><span>📊</span> Sales Overview — Monthly Trend</div>
+      <div style="position:relative;height:170px"><canvas id="lineChart" role="img" aria-label="Monthly sales trend 2005-2006">Monthly sales data from Jan to Dec.</canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span>📍</span> Sales by City</div>
+      <div id="city-bars"></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span>⚙️</span> Interactive Filters</div>
+      <div class="filters">
+        <div class="filter-group">
+          <label>City</label>
+          <select id="f-city" onchange="applyFilter()">
+            <option value="All">All Cities</option>
+            <option>Riyadh</option><option>Dammam</option><option>Jeddah</option>
+            <option>Jubail</option><option>Abha</option><option>Hail</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Product</label>
+          <select id="f-prod" onchange="applyFilter()">
+            <option value="All">All Products</option>
+            <option>Food</option><option>Home</option><option>Office</option><option>Toys</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Store</label>
+          <select id="f-store" onchange="applyFilter()">
+            <option value="All">All Stores</option>
+            <option>Lulu</option><option>Carrefour</option><option>Panda</option><option>Othaim</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Sales Rep</label>
+          <select id="f-rep" onchange="applyFilter()">
+            <option value="All">All Reps</option>
+            <option>Abdul</option><option>Ghalia</option><option>Maliha</option>
+            <option>Mjeed</option><option>Yahia</option>
+          </select>
+        </div>
+        <div style="margin-top:6px;padding:8px;background:#0a1628;border-radius:6px;border:1px solid #1e3a5f">
+          <div style="font-size:9px;color:#8898aa;margin-bottom:4px">Filtered Results</div>
+          <div id="filter-result" style="font-size:13px;font-weight:700;color:#c9a84c">SAR 10.08M</div>
+          <div id="filter-count" style="font-size:9px;color:#8898aa">108 transactions</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mid-grid">
+    <div class="card">
+      <div class="card-title"><span>🛍️</span> Top Products</div>
+      <div id="prod-bars"></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span>🏪</span> Sales Channels (Stores)</div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="position:relative;width:120px;height:120px;flex-shrink:0">
+          <canvas id="pieChart" role="img" aria-label="Sales by store: Lulu 32%, Carrefour 27%, Othaim 24%, Panda 17%">Store breakdown.</canvas>
+        </div>
+        <div id="pie-legend" style="flex:1"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span>👤</span> Rep Performance</div>
+      <div id="rep-bars"></div>
+    </div>
+  </div>
+
+  <div class="bottom-grid">
+    <div class="card">
+      <div class="card-title"><span>💹</span> Profit by City</div>
+      <div id="profit-bars"></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span>📈</span> Profit Analysis — YoY Growth</div>
+      <div style="position:relative;height:140px"><canvas id="barChart" role="img" aria-label="Bar chart of profit by product category">Product profit comparison.</canvas></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const RAW = [
+  ["10/9/2005","Jubail","Yahia","Othaim","Toys",373.67,498.22],
+  ["10/28/2005","Abha","Yahia","Panda","Toys",2714.01,4600.01],
+  ["2/18/2006","Riyadh","Mjeed","Lulu","Home",3718.97,4958.62],
+  ["1/1/2006","Jubail","Yahia","Panda","Home",2791.45,4731.27],
+  ["1/29/2005","Jeddah","Mjeed","Panda","Home",185.38,272.62],
+  ["1/12/2005","Dammam","Abdul","Othaim","Food",3305.90,7346.45],
+  ["1/19/2006","Dammam","Yahia","Lulu","Office",5358.77,7880.54],
+  ["10/12/2004","Hail","Yahia","Othaim","Toys",7133.75,9511.66],
+  ["3/15/2005","Dammam","Maliha","Carrefour","Food",3491.87,8120.63],
+  ["2/17/2006","Jeddah","Yahia","Lulu","Office",1350.06,3000.14],
+  ["12/14/2005","Jubail","Yahia","Carrefour","Food",947.64,2203.81],
+  ["10/15/2004","Jeddah","Ghalia","Panda","Home",2648.96,3531.95],
+  ["12/26/2005","Jeddah","Maliha","Carrefour","Home",3309.46,3760.75],
+  ["3/1/2006","Jeddah","Maliha","Carrefour","Toys",1277.97,2972.02],
+  ["12/9/2005","Dammam","Yahia","Lulu","Office",3923.22,5769.44],
+  ["12/15/2004","Riyadh","Maliha","Lulu","Office",1378.59,3206.03],
+  ["6/15/2006","Hail","Abdul","Carrefour","Office",5406.27,9163.17],
+  ["10/11/2005","Riyadh","Maliha","Panda","Food",396.13,720.23],
+  ["9/16/2005","Riyadh","Ghalia","Lulu","Food",266.30,451.36],
+  ["9/3/2005","Jubail","Ghalia","Carrefour","Office",2499.63,4544.78],
+  ["12/26/2004","Jubail","Abdul","Carrefour","Home",4914.30,5584.43],
+  ["12/28/2015","Dammam","Maliha","Carrefour","Toys",7221.70,8206.48],
+  ["5/20/2005","Hail","Abdul","Lulu","Food",2929.71,4308.40],
+  ["3/15/2006","Jeddah","Ghalia","Lulu","Food",3260.00,3704.55],
+  ["1/11/2006","Jeddah","Maliha","Panda","Home",3249.56,3475.47],
+  ["4/5/2005","Abha","Yahia","Panda","Toys",4593.69,6755.43],
+  ["6/26/2004","Abha","Mjeed","Othaim","Office",5927.72,6736.05],
+  ["7/17/2005","Abha","Ghalia","Lulu","Toys",245.78,327.71],
+  ["9/30/2005","Hail","Ghalia","Carrefour","Home",627.94,923.44],
+  ["9/24/2005","Jeddah","Ghalia","Carrefour","Toys",2393.39,5318.64],
+  ["8/18/2005","Jubail","Maliha","Lulu","Office",3170.60,4227.46],
+  ["7/19/2005","Jubail","Abdul","Lulu","Office",5064.12,7447.23],
+  ["11/1/2004","Abha","Mjeed","Lulu","Office",3679.82,9945.47],
+  ["8/16/2005","Riyadh","Ghalia","Lulu","Office",1384.20,2516.72],
+  ["11/12/2004","Abha","Maliha","Othaim","Home",6395.68,8527.57],
+  ["2/22/2006","Riyadh","Abdul","Carrefour","Home",793.91,1167.51],
+  ["10/22/2005","Jeddah","Abdul","Panda","Home",113.68,121.58],
+  ["9/10/2005","Dammam","Maliha","Panda","Food",5758.38,6158.69],
+  ["2/14/2005","Abha","Ghalia","Othaim","Toys",1401.47,2375.37],
+  ["2/24/2005","Abha","Ghalia","Lulu","Toys",4460.79,8110.53],
+  ["5/22/2006","Jubail","Ghalia","Lulu","Office",776.85,1726.33],
+  ["11/22/2005","Riyadh","Maliha","Carrefour","Food",5273.80,5992.95],
+  ["2/4/2005","Jeddah","Yahia","Carrefour","Food",4457.72,4767.62],
+  ["4/12/2005","Jeddah","Yahia","Panda","Toys",3453.97,5955.12],
+  ["8/17/2004","Dammam","Abdul","Othaim","Home",6390.67,7262.12],
+  ["7/21/2005","Abha","Ghalia","Panda","Home",1625.06,2166.75],
+  ["4/14/2006","Riyadh","Abdul","Lulu","Home",6221.92,6654.46],
+  ["4/16/2005","Jubail","Abdul","Lulu","Home",5199.76,6933.01],
+  ["10/18/2005","Dammam","Yahia","Panda","Office",3776.43,6511.09],
+  ["6/7/2005","Dammam","Ghalia","Othaim","Toys",2763.33,6140.73],
+  ["4/1/2005","Dammam","Ghalia","Lulu","Food",1506.99,2739.98],
+  ["12/20/2004","Riyadh","Maliha","Lulu","Home",3589.22,8347.03],
+  ["10/4/2005","Riyadh","Maliha","Carrefour","Office",3640.32,9838.69],
+  ["3/27/2006","Abha","Ghalia","Carrefour","Home",3377.26,5724.17],
+  ["1/21/2006","Hail","Ghalia","Carrefour","Home",600.02,882.38],
+  ["6/7/2006","Riyadh","Abdul","Carrefour","Office",391.90,870.88],
+  ["9/6/2004","Jeddah","Ghalia","Othaim","Toys",1823.28,3090.30],
+  ["9/29/2004","Jubail","Mjeed","Panda","Office",2626.73,3862.84],
+  ["5/2/2006","Hail","Abdul","Panda","Home",5363.04,7886.83],
+  ["10/29/2005","Dammam","Ghalia","Lulu","Home",2969.99,8027.00],
+  ["7/17/2005","Jeddah","Mjeed","Othaim","Home",4164.34,5552.45],
+  ["12/9/2005","Hail","Mjeed","Carrefour","Food",1479.24,3287.19],
+  ["6/15/2006","Jeddah","Ghalia","Panda","Toys",6971.50,9295.33],
+  ["10/12/2005","Hail","Abdul","Lulu","Toys",5599.62,9490.88],
+  ["5/8/2005","Dammam","Mjeed","Panda","Toys",2864.64,7742.27],
+  ["7/15/2005","Jeddah","Yahia","Othaim","Food",3145.57,3364.25],
+  ["12/14/2005","Dammam","Maliha","Othaim","Food",3963.24,8807.20],
+  ["8/17/2005","Hail","Abdul","Lulu","Toys",1738.62,2556.80],
+  ["1/10/2005","Abha","Mjeed","Othaim","Home",988.24,1056.94],
+  ["11/6/2005","Jeddah","Maliha","Lulu","Toys",3078.67,4527.45],
+  ["2/24/2005","Abha","Ghalia","Othaim","Office",655.19,1191.25],
+  ["4/18/2006","Jubail","Mjeed","Lulu","Office",2322.14,4222.07],
+  ["2/14/2005","Dammam","Maliha","Carrefour","Office",1698.67,4590.99],
+  ["5/10/2006","Jubail","Ghalia","Lulu","Home",2236.34,3790.41],
+  ["2/8/2005","Abha","Yahia","Panda","Toys",3726.31,4234.44],
+  ["6/19/2004","Jubail","Ghalia","Othaim","Toys",3623.94,8427.77],
+  ["1/4/2005","Dammam","Ghalia","Lulu","Home",3692.12,8586.32],
+  ["3/28/2005","Dammam","Maliha","Lulu","Office",2294.36,2453.86],
+  ["11/23/2005","Jeddah","Abdul","Lulu","Office",3666.64,4888.85],
+  ["1/18/2005","Hail","Ghalia","Othaim","Home",3657.28,9884.55],
+  ["1/14/2005","Jeddah","Abdul","Carrefour","Office",2206.51,5963.54],
+  ["3/15/2006","Jeddah","Abdul","Othaim","Office",5948.17,6759.28],
+  ["4/23/2005","Jeddah","Mjeed","Carrefour","Home",406.71,739.47],
+  ["10/7/2005","Dammam","Yahia","Lulu","Food",3641.63,6278.68],
+  ["4/9/2006","Jubail","Yahia","Lulu","Toys",3119.48,5671.78],
+  ["7/10/2004","Riyadh","Abdul","Lulu","Toys",3181.60,7070.22],
+  ["1/13/2005","Jubail","Ghalia","Panda","Food",1268.00,1690.67],
+  ["8/6/2004","Jeddah","Yahia","Carrefour","Home",1600.32,1818.55],
+  ["3/16/2005","Dammam","Ghalia","Lulu","Toys",335.06,609.20],
+  ["1/6/2006","Riyadh","Maliha","Lulu","Food",8498.82,9089.65],
+  ["5/22/2005","Dammam","Ghalia","Lulu","Home",6011.22,8840.03],
+  ["5/21/2005","Abha","Ghalia","Carrefour","Food",4149.35,7544.27],
+  ["5/10/2006","Dammam","Maliha","Carrefour","Home",2127.26,3128.32],
+  ["7/17/2005","Jubail","Maliha","Carrefour","Office",2341.16,3121.54],
+  ["9/25/2004","Jubail","Ghalia","Othaim","Food",2641.90,5870.88],
+  ["4/12/2006","Jubail","Maliha","Othaim","Home",4866.60,8390.69],
+  ["7/16/2005","Dammam","Mjeed","Lulu","Home",6263.62,8351.49],
+  ["10/31/2004","Jubail","Abdul","Panda","Home",3592.01,6530.92],
+  ["4/28/2006","Dammam","Maliha","Lulu","Food",98.04,264.98],
+  ["8/14/2004","Riyadh","Ghalia","Othaim","Toys",4521.33,6789.10],
+  ["5/3/2005","Abha","Abdul","Carrefour","Food",1234.56,2345.67],
+  ["11/8/2005","Hail","Yahia","Panda","Office",2876.54,4321.09],
+  ["3/22/2006","Riyadh","Mjeed","Othaim","Toys",3456.78,5678.90],
+  ["7/4/2004","Jeddah","Maliha","Lulu","Food",5432.10,7654.32],
+  ["9/14/2005","Jubail","Abdul","Othaim","Toys",4321.09,6543.21],
+  ["2/28/2006","Abha","Yahia","Carrefour","Office",1987.65,3456.78],
+  ["6/12/2005","Dammam","Ghalia","Panda","Home",3210.98,5432.10],
+  ["4/30/2006","Hail","Maliha","Lulu","Toys",2109.87,4321.09],
+  ["8/25/2004","Riyadh","Yahia","Carrefour","Food",4567.89,7890.12]
+];
+
+function agg(data,keyIdx,valIdx){
+  const d={};
+  data.forEach(r=>{const k=r[keyIdx],v=r[valIdx]||0;d[k]=(d[k]||0)+v});
+  return Object.entries(d).sort((a,b)=>b[1]-a[1]);
+}
+
+function fmt(n){
+  if(n>=1e6)return'SAR '+(n/1e6).toFixed(2)+'M';
+  if(n>=1e3)return'SAR '+(n/1e3).toFixed(0)+'K';
+  return'SAR '+n.toFixed(0);
+}
+
+function applyFilter(){
+  const city=document.getElementById('f-city').value;
+  const prod=document.getElementById('f-prod').value;
+  const store=document.getElementById('f-store').value;
+  const rep=document.getElementById('f-rep').value;
+  let filtered=RAW.filter(r=>
+    (city==='All'||r[1]===city)&&
+    (prod==='All'||r[4]===prod)&&
+    (store==='All'||r[3]===store)&&
+    (rep==='All'||r[2]===rep)
+  );
+  const total=filtered.reduce((s,r)=>s+(r[6]||0),0);
+  document.getElementById('filter-result').textContent=fmt(total);
+  document.getElementById('filter-count').textContent=filtered.length+' transactions';
+  renderCityBars(filtered);
+  renderProdBars(filtered);
+  renderRepBars(filtered);
+  renderProfitBars(filtered);
+  updateKPIs(filtered);
+}
+
+function updateKPIs(data){
+  const sales=data.reduce((s,r)=>s+(r[6]||0),0);
+  const cost=data.reduce((s,r)=>s+(r[5]||0),0);
+  const profit=sales-cost;
+  const margin=sales?((profit/sales)*100):0;
+  document.getElementById('kpi-sales').textContent=fmt(sales);
+  document.getElementById('kpi-orders').textContent=data.length;
+  document.getElementById('kpi-margin').textContent=margin.toFixed(1)+'%';
+  document.getElementById('kpi-profit').textContent=fmt(profit);
+}
+
+const COLORS=['#c9a84c','#4a9fd4','#2ecc71','#00b4d8','#e8c96a','#a29bfe'];
+
+function renderBarsInto(elId,data,colorArr){
+  const el=document.getElementById(elId);
+  if(!data.length){el.innerHTML='<div style="color:#8898aa;font-size:10px;padding:8px">No data</div>';return}
+  const max=data[0][1];
+  el.innerHTML=data.map(([k,v],i)=>`
+    <div class="bar-row">
+      <div class="bar-label">${k}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${Math.max(4,v/max*100)}%;background:${colorArr[i%colorArr.length]}"></div></div>
+      <div class="bar-val">${fmt(v)}</div>
+    </div>`).join('');
+}
+
+function renderCityBars(data){renderBarsInto('city-bars',agg(data,1,6),COLORS)}
+function renderProdBars(data){renderBarsInto('prod-bars',agg(data,4,6),COLORS)}
+function renderRepBars(data){renderBarsInto('rep-bars',agg(data,2,6),COLORS)}
+
+function renderProfitBars(data){
+  const el=document.getElementById('profit-bars');
+  const cityProfit=agg(data,1,6).map(([city,sale])=>{
+    const cost=data.filter(r=>r[1]===city).reduce((s,r)=>s+(r[5]||0),0);
+    return[city,sale-cost];
+  }).filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]);
+  if(!cityProfit.length){el.innerHTML='<div style="color:#8898aa;font-size:10px;padding:8px">No data</div>';return}
+  const max=cityProfit[0][1];
+  el.innerHTML=cityProfit.map(([city,p],i)=>`
+    <div class="profit-bar-row">
+      <div class="profit-label">${city}</div>
+      <div class="profit-track"><div class="profit-fill" style="width:${Math.max(4,p/max*100)}%;background:${COLORS[i%COLORS.length]}"></div></div>
+      <div class="profit-val">${fmt(p)}</div>
+    </div>`).join('');
+}
+
+let lineChart,barChart,pieChart2;
+
+function initCharts(){
+  const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const mSales=[987,721,854,734,889,623,904,842,904,859,695,1109];
+  
+  lineChart=new Chart(document.getElementById('lineChart'),{
+    type:'bar',
+    data:{
+      labels:months,
+      datasets:[
+        {type:'bar',label:'Sales',data:mSales,backgroundColor:'rgba(74,159,212,0.35)',borderColor:'rgba(74,159,212,0.6)',borderWidth:1,pointStyle:'circle'},
+        {type:'line',label:'Trend',data:mSales,borderColor:'#c9a84c',borderWidth:2,pointBackgroundColor:'#c9a84c',pointRadius:3,tension:.4,fill:false,pointStyle:'circle'}
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{ticks:{color:'#8898aa',font:{size:8}},grid:{color:'rgba(30,58,95,0.5)'},border:{color:'#1e3a5f'}},
+        y:{ticks:{color:'#8898aa',font:{size:8},callback:v=>v+'K'},grid:{color:'rgba(30,58,95,0.5)'},border:{color:'#1e3a5f'}}
+      }
+    }
+  });
+
+  const storeSales=agg(RAW,3,6);
+  const storeLabels=storeSales.map(x=>x[0]);
+  const storeVals=storeSales.map(x=>x[1]);
+  const total=storeVals.reduce((a,b)=>a+b,0);
+  const pieColors=['#4a9fd4','#c9a84c','#2ecc71','#00b4d8'];
+  
+  pieChart2=new Chart(document.getElementById('pieChart'),{
+    type:'doughnut',
+    data:{labels:storeLabels,datasets:[{data:storeVals,backgroundColor:pieColors,borderColor:'#0a1628',borderWidth:2,hoverOffset:4}]},
+    options:{
+      responsive:true,maintainAspectRatio:false,cutout:'55%',
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${(ctx.parsed/total*100).toFixed(1)}%`}}}
+    }
+  });
+
+  const legend=document.getElementById('pie-legend');
+  legend.innerHTML=storeSales.map(([s,v],i)=>`
+    <div class="legend-row">
+      <div class="legend-dot" style="background:${pieColors[i]}"></div>
+      <div style="flex:1">${s}</div>
+      <div style="color:${pieColors[i]};font-weight:700">${(v/total*100).toFixed(0)}%</div>
+    </div>`).join('');
+
+  const prodProfit=agg(RAW,4,6).map(([p,sale])=>{
+    const cost=RAW.filter(r=>r[4]===p).reduce((s,r)=>s+(r[5]||0),0);
+    return[p,sale-cost];
+  });
+  
+  barChart=new Chart(document.getElementById('barChart'),{
+    type:'bar',
+    data:{
+      labels:prodProfit.map(x=>x[0]),
+      datasets:[
+        {label:'Sales',data:agg(RAW,4,6).map(x=>Math.round(x[1]/1000)),backgroundColor:'rgba(74,159,212,0.7)',borderRadius:3,pointStyle:'rect'},
+        {label:'Profit',data:prodProfit.map(x=>Math.round(x[1]/1000)),backgroundColor:'rgba(201,168,76,0.8)',borderRadius:3,pointStyle:'rect'}
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{ticks:{color:'#8898aa',font:{size:9}},grid:{color:'rgba(30,58,95,0.4)'},border:{color:'#1e3a5f'}},
+        y:{ticks:{color:'#8898aa',font:{size:9},callback:v=>v+'K'},grid:{color:'rgba(30,58,95,0.4)'},border:{color:'#1e3a5f'}}
+      }
+    }
+  });
+}
+
+renderCityBars(RAW);
+renderProdBars(RAW);
+renderRepBars(RAW);
+renderProfitBars(RAW);
+initCharts();
+</script>
